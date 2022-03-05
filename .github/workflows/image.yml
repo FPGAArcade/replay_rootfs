@@ -18,6 +18,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: describe
+      run: echo "TAG=$(git describe --tags --always)" >> $GITHUB_ENV
 
     - name: build
       run: HOME=/root ./build.sh
@@ -37,19 +41,14 @@ jobs:
         name: build_stats
         path: stats
 
-    - uses: montudor/action-zip@v1
-    
     - if: startsWith(github.ref, 'refs/tags/')
-      run: zip -qq -r $GITHUB_WORKSPACE/replay_de10_image_${{ env.TAG }}.zip *
-      working-directory: image
-
-    - if: startsWith(github.ref, 'refs/tags/')
-      run: zip -qq -r $GITHUB_WORKSPACE/replay_de10_update_${{ env.TAG }}.zip *
-      working-directory: update
+      run: |
+        tar -C image  cvzf $GITHUB_WORKSPACE/replay_de10_image_${{ env.TAG }}.tar.gz *
+        tar -C update cvzf $GITHUB_WORKSPACE/replay_de10_update_${{ env.TAG }}.tar.gz *
 
     - uses: softprops/action-gh-release@v1
       if: startsWith(github.ref, 'refs/tags/')
       with:
         generate_release_notes: true
         files: |
-          *.zip
+          *.tar.gz
