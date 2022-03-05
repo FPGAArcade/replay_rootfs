@@ -1,8 +1,11 @@
 name: image
 on:
   push:
+    tags: 
+      - '*'
     paths:
       - '.github/**'
+  
   workflow_dispatch:
 
 jobs:
@@ -33,3 +36,20 @@ jobs:
       with:
         name: build_stats
         path: stats
+
+    - uses: montudor/action-zip@v1
+    
+    - if: startsWith(github.ref, 'refs/tags/')
+      run: zip -qq -r $GITHUB_WORKSPACE/replay_de10_image_${{ env.TAG }}.zip *
+      working-directory: image
+
+    - if: startsWith(github.ref, 'refs/tags/')
+      run: zip -qq -r $GITHUB_WORKSPACE/replay_de10_update_${{ env.TAG }}.zip *
+      working-directory: update
+
+    - uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        generate_release_notes: true
+        files: |
+          *.zip
