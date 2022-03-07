@@ -1,8 +1,11 @@
 name: image
 on:
   push:
+    tags: 
+      - '*'
     paths:
       - '.github/**'
+  
   workflow_dispatch:
 
 jobs:
@@ -15,6 +18,10 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+        fetch-depth: 0
+
+    - name: describe
+      run: echo "TAG=$(git describe --tags --always)" >> $GITHUB_ENV
 
     - name: build
       run: HOME=/root ./build.sh
@@ -33,3 +40,15 @@ jobs:
       with:
         name: build_stats
         path: stats
+
+    - if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        tar cvzf replay_de10_image_${{ env.TAG }}.tar.gz  -C image  $(cd image  ; echo *)
+        tar cvzf replay_de10_update_${{ env.TAG }}.tar.gz -C update $(cd update ; echo *)
+
+    - uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        generate_release_notes: true
+        files: |
+          *.tar.gz
