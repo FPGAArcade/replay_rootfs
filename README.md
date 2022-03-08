@@ -1,4 +1,9 @@
-# replay_rootfs
+# replay_rootfs 
+
+- [![image](https://github.com/FPGAArcade/replay_rootfs/actions/workflows/image.yml/badge.svg)](https://github.com/FPGAArcade/replay_rootfs/actions/workflows/image.yml)
+- **[Latest release](https://github.com/FPGAArcade/replay_rootfs/releases/latest)**  
+
+## Instructions
 
 The build produces two artifacts:
 - replay_de10_image
